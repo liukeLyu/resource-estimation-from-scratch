@@ -1,0 +1,624 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resource Estimation Pocket Course</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one narrow reading column; a home list of lessons, and one lesson at a time with a sticky bar. */
+:root {
+  --bg: #f3f6f8;
+  --paper: #ffffff;
+  --ink: #15232d;
+  --muted: #5a6b76;
+  --line: #d6e0e6;
+  --accent: #0d6f7d;
+  --accent-soft: #e0f0f2;
+  --done: #2f7a3e;
+  --data: #7a4a0d;
+  --data-soft: #fbf1e2;
+  --display: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f171c; --paper: #16222a; --ink: #e3ecf0; --muted: #93a6b1; --line: #2a3a44;
+    --accent: #5cc3cf; --accent-soft: #173a40; --done: #79c788; --data: #e8b56a; --data-soft: #2e2416;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f171c; --paper: #16222a; --ink: #e3ecf0; --muted: #93a6b1; --line: #2a3a44;
+  --accent: #5cc3cf; --accent-soft: #173a40; --done: #79c788; --data: #e8b56a; --data-soft: #2e2416;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 640px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.2; margin: 0; }
+a { color: var(--accent); }
+code { font-family: var(--mono); font-size: 0.82em; background: var(--accent-soft); padding: 0.05em 0.3em; border-radius: 4px; overflow-wrap: anywhere; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Home */
+.hero { padding-block: 28px 8px; display: grid; gap: 10px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.hero h1 { font-size: 34px; }
+.hero p { margin: 0; color: var(--muted); }
+.progress { display: grid; gap: 6px; margin-top: 8px; }
+.bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--accent); width: 0; transition: width 0.3s; }
+.progress small { font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.continue { margin-top: 10px; background: var(--accent); color: var(--paper); border: 0; border-radius: 12px; padding: 14px 18px; text-align: left; font-family: var(--display); font-weight: 700; font-size: 17px; }
+.continue span { display: block; font-family: var(--body); font-weight: 400; font-size: 15px; opacity: 0.9; }
+.unit { margin-top: 28px; display: grid; gap: 4px; }
+.unit h2 { font-size: 15px; font-family: var(--mono); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.unit p.blurb { margin: 4px 0 6px; font-size: 15px; color: var(--muted); }
+.row { display: grid; grid-template-columns: 2.2em 1fr auto; align-items: center; gap: 10px; width: 100%; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 12px 2px; text-align: left; color: var(--ink); }
+.row .n { font-family: var(--mono); font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.row .t { font-family: var(--display); font-weight: 500; font-size: 17px; line-height: 1.3; min-width: 0; }
+.row .mark { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-size: 13px; color: var(--paper); }
+.row.is-done .mark { background: var(--done); border-color: var(--done); }
+.row.is-done .mark::after { content: "✓"; }
+.foot { margin-top: 32px; font-size: 15px; color: var(--muted); }
+.linkbtn { background: none; border: 0; color: var(--accent); text-decoration: underline; padding: 0; font-size: 15px; }
+
+/* Lesson view */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; border-bottom: 1px solid var(--line); }
+.topbar button { background: none; border: 0; color: var(--accent); font-family: var(--display); font-weight: 500; font-size: 16px; padding: 6px 0; }
+.topbar .pos { font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.lesson { padding-block: 18px 8px; display: grid; gap: 14px; }
+.lesson .unitname { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.lesson h2 { font-size: 27px; }
+.lesson p { margin: 0; }
+.lesson ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+.math { overflow-x: auto; overflow-y: hidden; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; text-align: center; }
+.data { background: var(--data-soft); border-radius: 10px; padding: 12px 14px; font-size: 16px; }
+.data b { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--data); display: block; margin-bottom: 2px; }
+.code { font-size: 15px; color: var(--muted); }
+pre { font-family: var(--mono); font-size: 13px; line-height: 1.5; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; overflow-x: auto; margin: 0; }
+.check { border: 2px solid var(--accent-soft); border-radius: 12px; padding: 12px 14px; display: grid; gap: 8px; }
+.check .q { font-weight: 600; }
+.check .q::before { content: "Quick check  "; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); display: block; font-weight: 400; }
+.check button { justify-self: start; background: var(--accent-soft); color: var(--accent); border: 0; border-radius: 8px; padding: 8px 14px; font-family: var(--display); font-weight: 500; font-size: 15px; }
+.review .check .q::before { content: "Recall  "; }
+.review .lead { color: var(--muted); }
+.check .a { border-top: 1px dashed var(--line); padding-top: 8px; }
+.cite { font-size: 15px; color: var(--muted); }
+.nav { display: flex; gap: 10px; margin-top: 10px; }
+.nav button { flex: 1; border-radius: 12px; padding: 14px; font-family: var(--display); font-weight: 700; font-size: 16px; border: 2px solid var(--accent); }
+.nav .prev { background: none; color: var(--accent); flex: 0 0 auto; padding-inline: 18px; }
+.nav .next { background: var(--accent); color: var(--paper); }
+.tn { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 8px 6px; text-align: center; }
+.tn svg { max-width: 100%; height: auto; display: inline-block; }
+.tn-line { stroke: var(--ink); stroke-width: 1.6; fill: none; stroke-linecap: round; }
+.tn-line.thick { stroke-width: 3.6; }
+.tn-node > * { fill: var(--paper); stroke: var(--ink); stroke-width: 1.6; }
+.tn-node.soft > * { fill: var(--accent-soft); }
+.tn-node.accent > * { fill: var(--accent); stroke: var(--accent); }
+.tn-label { font-family: var(--mono); font-size: 12px; fill: var(--ink); }
+.tn-label.tight { font-size: 9.5px; }
+.tn-label.on-accent { fill: var(--paper); font-weight: 600; }
+.tn-idx { font-family: var(--body); font-style: italic; font-size: 12px; fill: var(--muted); }
+.tn-text { font-family: var(--body); font-size: 20px; fill: var(--ink); }
+.tn-text.small { font-size: 12.5px; fill: var(--muted); }
+.tn-box { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.tn-boxlabel { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .bar > span { transition: none; } }
+</style>
+
+<div class="wrap">
+
+<section id="home">
+  <div class="hero">
+    <div class="eyebrow">Companion to resource-estimation-from-scratch</div>
+    <h1>Resource Estimation Pocket Course</h1>
+    <p><span id="nLessons">N</span> short lessons, about two minutes each, from "how much quantum computer does one energy cost?" to "FeMoco, rebuilt line by line". Each one ends with a quick check you can do in your head, and every few lessons a review card mixes questions from earlier ones. The numbers in the amber boxes come from your own code.</p>
+    <div class="progress">
+      <div class="bar"><span id="bar"></span></div>
+      <small id="count">0 lessons done</small>
+    </div>
+    <button class="continue" id="continue" type="button">Start with lesson 1<span>What an estimate answers</span></button>
+  </div>
+  <div id="units"></div>
+  <p class="foot">Your progress is saved in this browser only. <button class="linkbtn" id="reset" type="button">Clear progress</button><span id="resetConfirm" hidden> Clear all ticks? <button class="linkbtn" id="resetYes" type="button">Yes, clear</button> · <button class="linkbtn" id="resetNo" type="button">Keep</button></span></p>
+</section>
+
+<section id="reader" hidden>
+  <div class="topbar">
+    <button type="button" id="back">← All lessons</button>
+    <span class="pos" id="pos"></span>
+  </div>
+  <div id="stage"></div>
+  <div class="nav">
+    <button class="prev" type="button" id="prev">←</button>
+    <button class="next" type="button" id="next">Got it, next →</button>
+  </div>
+</section>
+
+<!-- Lessons. data-unit groups them; each needs data-title. -->
+<div id="lessons" hidden>
+
+<article data-unit="1" data-title="What an estimate answers">
+<p>You want the ground-state energy of a Hamiltonian to accuracy \(\epsilon\) on a fault-tolerant quantum computer. An estimate answers three questions: how many logical qubits, how many expensive gates, and what that means in physical qubits and hours.</p>
+<p>Take the transverse-field Ising chain you know, 100 spins at \(h = 1\), energy wanted to \(\epsilon = 0.01\). One call answers all three, with every factor itemized.</p>
+<p class="code">In the code: <code>qcost.estimate(qcost.tfim(100), eps=0.01)</code>, printed by <code>qcost.show</code>.</p>
+<div class="data"><b>Your data</b>\(2.26\times10^7\) Toffolis on 172 logical qubits; code distance 25, 438 816 physical qubits, 0.86 hours. Notebook 0.</div>
+<div class="check"><p class="q">The exact answer here is known from free fermions. Why estimate a quantum computation for it at all?</p><button type="button">Show answer</button><p class="a" hidden>To calibrate: every factor can be checked on a model you understand before trusting the same pipeline on a molecule nobody can solve.</p></div>
+</article>
+
+<article data-unit="1" data-title="Why only Toffolis count">
+<p>In a surface code, Clifford gates (H, S, CNOT, Pauli measurements) are done by moving and measuring patches of qubits. They cost time and space, but no special resource.</p>
+<p>A non-Clifford gate needs a <em>magic state</em>, made in a factory of thousands of physical qubits over tens of error-correction rounds. So, to first approximation, an algorithm's cost is its count of non-Clifford gates: T gates, or Toffolis (one CCZ state each).</p>
+<p>Exchange rate: a Toffoli onto a fresh \(|0\rangle\) (a "temporary AND") costs 4 T gates [Gidney, <a href="https://arxiv.org/abs/1709.06648">arXiv:1709.06648</a>].</p>
+<div class="check"><p class="q">A circuit has 10<sup>6</sup> CNOTs and 10<sup>3</sup> Toffolis. Which number sets its fault-tolerant cost?</p><button type="button">Show answer</button><p class="a" hidden>The 10<sup>3</sup> Toffolis: each needs a magic state from a factory; CNOTs are Clifford.</p></div>
+</article>
+
+<article data-unit="1" data-title="Calls times step">
+<p>Every estimate in this course has the same shape:</p>
+<div class="math">\(\text{Toffolis} = \left\lceil \dfrac{\pi\lambda}{2\epsilon}\right\rceil \times \big(\text{SELECT} + 2\,\text{PREPARE} + \text{reflection}\big)\)</div>
+<p>The first factor is the number of steps of a quantum walk that phase estimation runs [Lee et al., <a href="https://arxiv.org/abs/2011.03494">arXiv:2011.03494</a>, Eq. 45]. \(\lambda = \sum_l |c_l|\) is the one-norm of \(H = \sum_l c_l P_l\). The bracket is the cost of one walk step; parts 2 to 4 build each piece.</p>
+<div class="data"><b>Your data</b>TFIM, 100 spins: \(\lambda = 199\), 31 259 walk calls × 724 Toffolis per step. Notebook 0.</div>
+<div class="check"><p class="q">You double \(\lambda\) by doubling every coefficient. What happens to the Toffoli count at fixed \(\epsilon\)?</p><button type="button">Show answer</button><p class="a" hidden>It doubles (the walk calls double). But the energies doubled too, so at the same <em>relative</em> accuracy nothing changed.</p></div>
+</article>
+
+<article data-unit="1" data-title="Precision, not size">
+<p>Three spins, a Heisenberg chain with a field on the middle spin: 7 Pauli terms, \(\lambda = 6.3\). Ask for the energy to \(\epsilon = 0.001\).</p>
+<p>The walk-call count \(\pi\lambda/(2\epsilon)\) does not care that the system is tiny. Small problems are priced by their precision.</p>
+<div class="data"><b>Your data</b>9 897 walk calls × 100 Toffolis = 989 700 Toffolis on 57 logical qubits. Notebook 0.</div>
+<div class="check"><p class="q">Same three spins, \(\epsilon = 0.01\). Roughly how many walk calls?</p><button type="button">Show answer</button><p class="a" hidden>About 990: ten times fewer, since calls scale as \(1/\epsilon\).</p></div>
+</article>
+
+<article data-unit="1" data-title="Review: the price tag" data-review>
+<p>Answer each from memory before you tap.</p>
+<div class="check"><p class="q">(Lesson 3) Write the two factors of a qubitized phase-estimation cost.</p><button type="button">Show answer</button><p class="a" hidden>Walk calls \(\lceil\pi\lambda/(2\epsilon)\rceil\) times Toffolis per walk step (SELECT + 2 PREPARE + reflection).</p></div>
+<div class="check"><p class="q">(Lesson 2) Why is a CNOT "free" in a surface code but a Toffoli is not?</p><button type="button">Show answer</button><p class="a" hidden>CNOT is Clifford, done by lattice surgery; a Toffoli needs a magic state from a factory.</p></div>
+<div class="check"><p class="q">(Lesson 4) A 3-spin problem costs a million Toffolis. What dominates?</p><button type="button">Show answer</button><p class="a" hidden>The precision: \(\lambda/\epsilon\) walk calls, not the number of qubits.</p></div>
+</article>
+
+<article data-unit="2" data-title="Amplification is a rotation">
+<p>A circuit \(A\) succeeds with probability \(a = \sin^2\theta\): \(A|0\rangle = \sin\theta|\text{good}\rangle + \cos\theta|\text{bad}\rangle\). Two reflections, one about \(|\text{bad}\rangle\) and one about \(A|0\rangle\), make a rotation by \(2\theta\) in that plane.</p>
+<div class="math">\(Q = -A\,S_0\,A^\dagger\,S_\text{good}, \qquad Q^m A|0\rangle: \ \text{good amplitude } \sin((2m+1)\theta)\)</div>
+<p>Three qubits, one marked state out of eight: \(a = 1/8\).</p>
+<p class="code">In the code: <code>qcost.amplify.success_after(A, good, m)</code>.</p>
+<div class="data"><b>Your data</b>Success 0.125, 0.781, 0.945 after 0, 1, 2 rounds; then 0.330 after 3 (overshoot). Notebook 1.</div>
+<div class="check"><p class="q">Why does a third round make things worse?</p><button type="button">Show answer</button><p class="a" hidden>The rotation keeps going past \(\pi/2\): \((2m+1)\theta\) overshoots the good axis.</p></div>
+</article>
+
+<article data-unit="2" data-title="Square root of the tries">
+<p>Repeating until success takes \(1/a\) tries. Amplification needs about \(\pi/(4\theta)\) rounds, and for small \(a\), \(\theta \approx \sqrt a\): about \(1/\sqrt a\) rounds [Brassard, Høyer, Mosca, Tapp, <a href="https://arxiv.org/abs/quant-ph/0005055">quant-ph/0005055</a>, Thm. 2].</p>
+<p>The catch: you must know \(a\) to stop at the right round.</p>
+<div class="data"><b>Your data</b>\(a = 10^{-4}\): 78 rounds against 10 000 tries; \(a = 10^{-6}\): 785 against 10<sup>6</sup>. Notebook 1.</div>
+<div class="check"><p class="q">Each round uses \(A\) twice. At \(a = 10^{-4}\), how many uses of \(A\) in all?</p><button type="button">Show answer</button><p class="a" hidden>About 157 (one to start, two per round), still about 60 times fewer than 10 000 tries.</p></div>
+</article>
+
+<article data-unit="2" data-title="Oblivious amplification">
+<p>A block encoding \(U\) applies an operator \(V\) when its ancilla is found in \(|0\rangle\): \(U|0\rangle|\psi\rangle = \sin\theta\,|0\rangle V|\psi\rangle + \dots\). Plain amplification would reflect about \(U|0\rangle|\psi\rangle\), which needs \(|\psi\rangle\).</p>
+<p>If \(V\) is unitary, \(\sin\theta\) is the same for every \(|\psi\rangle\), and reflecting about the ancilla alone works: one round is \(-URU^\dagger RU\) [Berry et al., <a href="https://arxiv.org/abs/1312.1414">arXiv:1312.1414</a>, Lemma 3.6]. At \(\sin\theta = 1/2\) one round is exact.</p>
+<div class="data"><b>Your data</b>\(V = e^{i\varphi X}\) as an LCU with coefficients summing to 2: success 0.250 before, 1.000 after one round, and the state is \(V|\psi\rangle\) for every random input. Notebook 1.</div>
+<div class="check"><p class="q">Why pad the LCU so its coefficients sum to exactly 2?</p><button type="button">Show answer</button><p class="a" hidden>So the block is \(V/2\): \(\sin\theta = 1/2\), \(\theta = \pi/6\), and one round reaches \(3\theta = \pi/2\).</p></div>
+</article>
+
+<article data-unit="2" data-title="Where it stops working">
+<p>A block encoding of \(H/\lambda\) is not a unitary times a constant. Its success amplitude \(\|H|\psi\rangle\|/\lambda\) depends on \(|\psi\rangle\), so no fixed number of rounds suits every input.</p>
+<p>That is why phase estimation runs the walk operator itself, whose eigenphases carry the energy (part 4), instead of trying to apply \(H\).</p>
+<div class="data"><b>Your data</b>3-spin TFIM block encoding: success amplitude 0.680 on the ground state, 0.463 on a random state. Notebook 1.</div>
+<div class="check"><p class="q">For which states would the amplitude be exactly 1?</p><button type="button">Show answer</button><p class="a" hidden>Eigenstates with \(|E| = \lambda\), which happens only if every term acts with full weight in the same direction: almost never.</p></div>
+</article>
+
+<article data-unit="2" data-title="The temporary AND">
+<p>A Toffoli onto a qubit known to be \(|0\rangle\) computes \(t = a\wedge b\) for 4 T gates. Undoing it is free: measure \(t\) in the X basis; on outcome 1, apply CZ between \(a\) and \(b\) to fix the sign \((-1)^{ab}\) [Gidney, <a href="https://arxiv.org/abs/1709.06648">arXiv:1709.06648</a>, Fig. 3].</p>
+<p>So every "compute, use, uncompute" pattern pays once. This one trick halves most published costs.</p>
+<p class="code">In the code: <code>Circuit.and_</code> counts one Toffoli, <code>Circuit.unand</code> counts zero.</p>
+<div class="data"><b>Your data</b>On a 3-qubit state vector, both outcomes leave the controls exactly as they were. Notebook 2.</div>
+<div class="check"><p class="q">What would uncomputing by running the Toffoli again cost?</p><button type="button">Show answer</button><p class="a" hidden>Another Toffoli. Measurement plus a Clifford fix-up costs none.</p></div>
+</article>
+
+<article data-unit="2" data-title="Adding and comparing">
+<p><b>Adder,</b> \(b \leftarrow a + b \bmod 2^n\): the carry into bit \(i+1\) is one AND after two CNOTs, \(c_{i+1} = (a_i\oplus c_i)(b_i\oplus c_i)\oplus c_i\). Ripple up computing carries, ripple down undoing them for free: \(n - 1\) Toffolis.</p>
+<p><b>Comparator,</b> flag \(a < b\): the carry out of \((2^n - 1 - a) + b\) is 1 exactly when \(b > a\). Compute only the carries (\(n\) ANDs), copy the last, undo by measurement: \(n\) Toffolis.</p>
+<p class="code">In the code: <code>qcost.arithmetic.adder(n)</code>, <code>comparator(n)</code>; <code>Circuit.run</code> checks every input.</p>
+<div class="data"><b>Your data</b>\(n = 6\): adder correct on all 4096 inputs with 5 Toffolis (PennyLane's SemiAdder: 5); comparator with 6 (PennyLane's RegisterComparator: 11, no measurement-based uncompute). Notebook 2.</div>
+<div class="check"><p class="q">Alias sampling compares a \(\mu\)-bit random number with a \(\mu\)-bit table entry. Cost?</p><button type="button">Show answer</button><p class="a" hidden>\(\mu\) Toffolis.</p></div>
+</article>
+
+<article data-unit="2" data-title="Rotations from a phase gradient">
+<p>Prepare once \(|\phi\rangle = 2^{-b/2}\sum_k e^{-2\pi i k/2^b}|k\rangle\). Adding an integer \(\theta\) into it permutes the basis, yet \(|\phi\rangle\) is an eigenvector of that shift with eigenvalue \(e^{2\pi i\theta/2^b}\). Controlled on a qubit, that is a \(Z\) rotation for one \(b\)-bit addition: \(b - 2\) Toffolis [Sanders et al., <a href="https://arxiv.org/abs/2007.07391">arXiv:2007.07391</a>, App. A].</p>
+<p>A fixed angle is better synthesized (about \(3\log_2(1/\epsilon)\) T gates, Ross and Selinger). An angle held in a register is a superposition of \(2^b\) angles; synthesizing it bit by bit costs \(b\) synthesized rotations.</p>
+<div class="data"><b>Your data</b>\(b = 16\): 40 T for one fixed angle, 641 T bit by bit, 14 Toffolis by the gradient. Notebook 2.</div>
+<div class="check"><p class="q">The FeMoco walk does \(4N\) gradient rotations per step with \(N = 108\), \(\beth = 16\). Toffolis?</p><button type="button">Show answer</button><p class="a" hidden>\(4 \times 108 \times 14 = 6048\).</p></div>
+</article>
+
+<article data-unit="2" data-title="Review: building blocks" data-review>
+<p>Answer each from memory before you tap.</p>
+<div class="check"><p class="q">(Lesson 7) Success probability \(10^{-6}\): rounds of amplification, roughly?</p><button type="button">Show answer</button><p class="a" hidden>About 785, i.e. \(\pi/(4\sqrt{10^{-6}})\).</p></div>
+<div class="check"><p class="q">(Lesson 9) Why can't oblivious amplification boost a block encoding of \(H/\lambda\)?</p><button type="button">Show answer</button><p class="a" hidden>The block is not a unitary times a constant, so the success amplitude depends on the input state.</p></div>
+<div class="check"><p class="q">(Lesson 11) Toffolis for a 20-bit adder, and for a 20-bit comparator?</p><button type="button">Show answer</button><p class="a" hidden>19 and 20.</p></div>
+<div class="check"><p class="q">(Lesson 3) Which part of the cost formula do adders and comparators feed into?</p><button type="button">Show answer</button><p class="a" hidden>The Toffolis per walk step, through PREPARE (comparator) and rotations (adders).</p></div>
+</article>
+
+<article data-unit="3" data-title="A lookup in superposition">
+<p>Block encodings look things up: a term's weight, a rotation angle. A QROM maps \(|l\rangle|0\rangle \to |l\rangle|d_l\rangle\) for a classical table \(d_0,\dots,d_{L-1}\), for all \(l\) at once.</p>
+<p>Writing a word is free: once a flag qubit says "the address is \(l\)", CNOTs copy the 1-bits of \(d_l\). The only cost is computing the flags.</p>
+<p class="code">In the code: <code>qcost.qrom.qrom(data, b)</code>.</p>
+<div class="data"><b>Your data</b>Five 6-bit words [13, 2, 61, 40, 7]: every address returns its word, with 3 Toffolis. Notebook 3.</div>
+<div class="check"><p class="q">Does the cost change if the words are 64 bits instead of 6?</p><button type="button">Show answer</button><p class="a" hidden>No: extra bits are extra CNOTs, which are Clifford.</p></div>
+</article>
+
+<article data-unit="3" data-title="Unary iteration">
+<p>The flags are nodes of a binary tree over the address bits. A left child is "parent AND next bit is 0": one temporary AND. Its right sibling is parent XOR left child: one CNOT. Undoing the AND is free.</p>
+<div class="tn" data-d="tree"></div>
+<p>So each node with two children costs one Toffoli, and a tree with \(L\) leaves has \(L - 1\) of them [Babbush et al., <a href="https://arxiv.org/abs/1805.03662">arXiv:1805.03662</a>, Fig. 7: \(4L - 4\) T]. Without a control, the root's flag is just the top address bit: one fewer.</p>
+<div class="data"><b>Your data</b>\(L = 100\): 98 Toffolis uncontrolled, 99 controlled, for 1-bit and 32-bit words alike. Notebook 3.</div>
+<div class="check"><p class="q">SELECT applies \(P_l\) controlled on the flag of leaf \(l\). Toffolis over \(L\) terms?</p><button type="button">Show answer</button><p class="a" hidden>\(L - 1\): same tree, and controlled Paulis are Clifford.</p></div>
+</article>
+
+<article data-unit="3" data-title="Select/swap">
+<p>\(L\) Toffolis is a lot for a long table of short words. Split the address: the high bits pick a block of \(k\) words, written all at once into \(k\) registers (free per bit), and the low bits drive \(k - 1\) controlled swaps of \(b\)-bit words that bring the wanted one to the front [Low, Kliuchnikov, Schaeffer, <a href="https://arxiv.org/abs/1812.00954">arXiv:1812.00954</a>].</p>
+<div class="math">\(\text{Toffolis} = \lceil L/k\rceil + b(k-1)\)</div>
+<p>[Berry et al., <a href="https://arxiv.org/abs/1902.02134">arXiv:1902.02134</a>, App. A]. The price: \(b(k-1)\) more qubits.</p>
+<p class="code">In the code: <code>qcost.qrom.select_swap_qrom(data, b, k)</code>.</p>
+<div class="data"><b>Your data</b>\(L = 37\), \(b = 4\): 35, 21, 20, 31, 61 Toffolis for \(k = 1, 2, 4, 8, 16\), equal to PennyLane's <code>QROM</code> each time. Notebook 3.</div>
+<div class="check"><p class="q">Why does \(k = 16\) cost more than \(k = 1\) here?</p><button type="button">Show answer</button><p class="a" hidden>The swap term \(b(k-1) = 60\) outgrows what it saves on a table of only 37 words.</p></div>
+</article>
+
+<article data-unit="3" data-title="The best block size">
+<p>The two terms balance when \(L/k \approx bk\): \(k \approx \sqrt{L/b}\), and the cost drops from \(L\) to about \(2\sqrt{Lb}\).</p>
+<p>Undoing a lookup by running it backwards costs as much again. Measuring the output in the X basis instead leaves a sign on each address, fixed by a one-bit lookup: \(\lceil L/k\rceil + k\) Toffolis, best at \(k \approx \sqrt L\) [Berry et al., App. C].</p>
+<div class="data"><b>Your data</b>\(L = 10\,000\), \(b = 20\): best \(k = 16\), 925 Toffolis instead of 9 999. FeMoco's angle table (13 031 words of 864 bits): compute 5 850 (\(k = 4\)), uncompute 230 (\(k = 128\)). Notebook 3.</div>
+<div class="check"><p class="q">For 1-bit words, roughly what does a lookup of 10<sup>6</sup> entries cost?</p><button type="button">Show answer</button><p class="a" hidden>About \(2\sqrt{10^6} = 2000\) Toffolis, with \(k \approx 1000\).</p></div>
+</article>
+
+<article data-unit="3" data-title="Review: loading data" data-review>
+<p>Answer each from memory before you tap.</p>
+<div class="check"><p class="q">(Lesson 15) Why does a right child in the unary-iteration tree cost nothing?</p><button type="button">Show answer</button><p class="a" hidden>Right = parent XOR left child: a CNOT.</p></div>
+<div class="check"><p class="q">(Lesson 16) What do you pay for select/swap's Toffoli savings?</p><button type="button">Show answer</button><p class="a" hidden>Qubits: \(b(k-1)\) extra output registers.</p></div>
+<div class="check"><p class="q">(Lesson 10) Which trick makes the uncomputation of every unary-iteration AND free?</p><button type="button">Show answer</button><p class="a" hidden>Measurement-based uncomputation of the temporary AND (X measurement plus CZ fix).</p></div>
+<div class="check"><p class="q">(Lesson 12) In a rotation by phase gradient, which part might a QROM provide?</p><button type="button">Show answer</button><p class="a" hidden>The angle: a lookup writes it into a register, the adder applies it.</p></div>
+</article>
+
+<article data-unit="4" data-title="The alias method">
+<p>PREPARE must load \(\sum_l \sqrt{|c_l|/\lambda}\,|l\rangle\). The classical alias method cuts any distribution over \(L\) items into \(L\) equal buckets of at most two items each: item \(l\) keeps \(\text{keep}_l/2^\mu\) of its bucket, the rest goes to \(\text{alt}_l\).</p>
+<p>To sample: pick a bucket uniformly, pick \(\sigma < 2^\mu\) uniformly, output \(l\) if \(\sigma < \text{keep}_l\), else \(\text{alt}_l\).</p>
+<p class="code">In the code: <code>qcost.alias.alias_tables(weights, mu)</code>.</p>
+<div class="data"><b>Your data</b>Weights 0.40, 0.25, 0.15, 0.10, 0.06, 0.04 with \(\mu = 4\): keep = [16, 12, 14, 10, 6, 4], alt = [0, 0, 0, 0, 0, 1]; largest error 0.0042, within the bound \(1/(2^\mu L) = 0.0104\). Notebook 4.</div>
+<div class="check"><p class="q">Bucket 0 has keep = 16 out of 16. What does that mean?</p><button type="button">Show answer</button><p class="a" hidden>Bucket 0 is entirely item 0: its alias is never used.</p></div>
+</article>
+
+<article data-unit="4" data-title="Coherent alias sampling">
+<p>Run the same recipe on superpositions [Babbush et al., <a href="https://arxiv.org/abs/1805.03662">arXiv:1805.03662</a>, Fig. 11]: uniform superpositions over \(l\) and \(\sigma\); a QROM writes \((\text{keep}_l, \text{alt}_l)\) (\(L - 1\)); a comparator (\(\mu\)); a controlled swap of \(l\) with \(\text{alt}_l\) (\(\lceil\log_2 L\rceil\)).</p>
+<p>About \(L + \mu\) Toffolis, set by the QROM. \(\mu = \lceil\log_2(2\sqrt2\lambda/\epsilon)\rceil\) keeps the energy error below \(\epsilon\) [Eq. 36].</p>
+<div class="data"><b>Your data</b>TFIM, 100 spins, \(\mu = 16\): uniform 29 + QROM 198 + comparator 16 + swap 8 = 251 Toffolis. Notebook 4.</div>
+<div class="check"><p class="q">Every TFIM coupling equals 1 and every field equals \(h\). What could a smarter PREPARE do?</p><button type="button">Show answer</button><p class="a" hidden>Skip the table: one rotation to split bonds from sites, then uniform superpositions. Almost free.</p></div>
+</article>
+
+<article data-unit="4" data-title="The block encoding">
+<p>PREPARE weights the terms; SELECT applies them, \(\sum_l |l\rangle\langle l| \otimes \text{sign}(c_l)P_l\). Together:</p>
+<div class="math">\(\langle 0|\,\text{PREP}^\dagger\,\text{SELECT}\,\text{PREP}\,|0\rangle = H/\lambda\)</div>
+<div class="tn" data-d="walk"></div>
+<p>The weight \(\sqrt{|c_l|/\lambda}\) appears twice, once from PREP and once from PREP\(^\dagger\), giving \(|c_l|/\lambda\). That is why \(\lambda\), not the number of terms, is the normalization.</p>
+<div class="check"><p class="q">Why does SELECT carry \(\text{sign}(c_l)\)?</p><button type="button">Show answer</button><p class="a" hidden>PREP can only load magnitudes \(\sqrt{|c_l|}\); the sign has to come from the unitary.</p></div>
+</article>
+
+<article data-unit="4" data-title="The walk and its spectrum">
+<p>Multiply by the reflection \(R = 2|0\rangle\langle 0| - 1\) on the index register. The walk \(W = R\,\text{PREP}^\dagger\,\text{SELECT}\,\text{PREP}\) has eigenvalues \(e^{\pm i\arccos(E_k/\lambda)}\) for every eigenvalue \(E_k\) of \(H\) [Low and Chuang, <a href="https://arxiv.org/abs/1610.06546">arXiv:1610.06546</a>].</p>
+<p>Why: for each eigenvector, \(W\) acts on a 2D plane as a rotation by \(\arccos(E_k/\lambda)\), the picture of lesson 6 again.</p>
+<p class="code">In the code: <code>qcost.walk.walk_matrix(H)</code>.</p>
+<div class="data"><b>Your data</b>4-spin TFIM: \(W\) is \(128\times128\); every \(\arccos(E_k/\lambda)\) is a phase of \(W\) to \(4\times10^{-16}\); 32 phases carry energies, the other 96 are \(\pm1\) on states a start from \(|0\rangle|\psi\rangle\) never reaches. Notebook 4.</div>
+<div class="check"><p class="q">How many walk eigenvalues does one energy \(E_k\) give?</p><button type="button">Show answer</button><p class="a" hidden>Two: \(e^{+i\arccos(E_k/\lambda)}\) and \(e^{-i\arccos(E_k/\lambda)}\).</p></div>
+</article>
+
+<article data-unit="4" data-title="How many walk calls">
+<p>\(|d\arccos(E/\lambda)/dE| \ge 1/\lambda\), so an energy error \(\epsilon\) needs a phase error about \(\epsilon/\lambda\), and phase estimation needs a number of walk steps proportional to \(\lambda/\epsilon\).</p>
+<p>Two conventions are in use. Lee et al. need \(\lceil\pi\lambda/(2\epsilon)\rceil\) [Eq. 45]. Babbush et al. define \(\epsilon\) as a root-mean-square error and need \(\sqrt2\pi\lambda/\epsilon\) [arXiv:1805.03662, Eq. 26]. The ratio is \(2\sqrt2 \approx 2.8\).</p>
+<div class="data"><b>Your data</b>8×8 Hubbard, \(\epsilon = 0.01\): \(2.27\times10^5\) calls in the RMS convention, \(8.04\times10^4\) in Lee et al.'s. Notebook 7.</div>
+<div class="check"><p class="q">Two papers report costs a factor 2.8 apart for the same circuit. First thing to check?</p><button type="button">Show answer</button><p class="a" hidden>How each defines the energy error \(\epsilon\).</p></div>
+</article>
+
+<article data-unit="4" data-title="One step, itemized">
+<p>A walk step is SELECT, PREPARE, PREPARE\(^\dagger\) and the reflection. The reflection acts on the \(\lceil\log_2 L\rceil\) index qubits and the \(\mu\) qubits of \(\sigma\), with one more control for phase estimation; a NOT with \(n\) controls costs \(n - 1\) Toffolis.</p>
+<p>For a generic Pauli sum that is about \(3L\): \(L\) for SELECT and \(L\) for each PREPARE.</p>
+<div class="data"><b>Your data</b>TFIM, 100 spins: SELECT 198 + PREPARE 251 + PREPARE\(^\dagger\) 251 + reflection 24 = 724. PennyLane's estimator: 960 Toffolis + 176 T (it erases its lookup inside each call and synthesizes one rotation). Notebook 4.</div>
+<div class="check"><p class="q">Which single piece would a structure-aware PREPARE remove for the TFIM?</p><button type="button">Show answer</button><p class="a" hidden>The 198-Toffoli QROM inside each PREPARE: about 400 of the 724.</p></div>
+</article>
+
+<article data-unit="4" data-title="Review: the walk" data-review>
+<p>Answer each from memory before you tap.</p>
+<div class="check"><p class="q">(Lesson 20) What sets most of the cost of alias-sampling PREPARE?</p><button type="button">Show answer</button><p class="a" hidden>The QROM that loads keep and alt: about \(L\) Toffolis.</p></div>
+<div class="check"><p class="q">(Lesson 22) Which eigenvalues of the walk carry the energy \(E\)?</p><button type="button">Show answer</button><p class="a" hidden>\(e^{\pm i\arccos(E/\lambda)}\).</p></div>
+<div class="check"><p class="q">(Lesson 9) Why is the walk, not oblivious amplification, used for \(H/\lambda\)?</p><button type="button">Show answer</button><p class="a" hidden>The walk's phases carry the energy for any input; amplification needs a state-independent success amplitude.</p></div>
+<div class="check"><p class="q">(Lesson 17) A walk loads 10<sup>4</sup> words of 20 bits per step. Best select/swap cost?</p><button type="button">Show answer</button><p class="a" hidden>925 Toffolis at \(k = 16\).</p></div>
+</article>
+
+<article data-unit="5" data-title="A molecule as a Pauli sum">
+<p>A molecule with \(n\) spatial orbitals has about \(n^4/8\) distinct two-electron integrals \((pq|rs)\). As a Pauli sum it has \(O(n^4)\) terms to load and a large \(\lambda\).</p>
+<p>Six hydrogen atoms in a minimal basis: 12 spin orbitals, 12 qubits. The generic pipeline works, but it is the expensive way.</p>
+<div class="data"><b>Your data</b>H\(_6\): 918 Pauli terms. Pauli sum: \(\lambda = 21.4\), \(6.07\times10^7\) Toffolis on 90 qubits. Double factorized: \(\lambda = 12.1\), \(1.65\times10^7\) Toffolis on 233 qubits. Notebook 0.</div>
+<div class="check"><p class="q">Double factorization uses fewer Toffolis but more qubits. Where do the qubits go?</p><button type="button">Show answer</button><p class="a" hidden>Into the select/swap lookup of rotation angles, which trades qubits for Toffolis.</p></div>
+</article>
+
+<article data-unit="5" data-title="Two eigendecompositions">
+<p>Group indices in pairs: \(V_{(pq),(rs)} = (pq|rs)\) is a positive semidefinite \(n^2\times n^2\) matrix. Its eigendecomposition gives \((pq|rs) = \sum_{\ell=1}^{L} W^\ell_{pq}W^\ell_{rs}\): the two-body part becomes a sum of \(L\) squares of one-body operators.</p>
+<p>Each \(W^\ell\) is symmetric, so it has its own orbitals: \(W^\ell = U^\ell\,\text{diag}(f^\ell)\,U^{\ell T}\). In those orbitals a square is number operators. The circuit: rotate orbitals, apply \(Z\)s, rotate back [von Burg et al., <a href="https://arxiv.org/abs/2007.14460">arXiv:2007.14460</a>].</p>
+<p>Keep eigenvector \(m\) if \(\big(\sum_p|f^\ell_p|\big)|f^\ell_m|\) exceeds a threshold [Lee et al., Eq. C41].</p>
+<p class="code">In the code: <code>qcost.factorization.double_factorize(eri, thresh)</code>.</p>
+<div class="data"><b>Your data</b>H\(_4\) at threshold \(10^{-4}\): \(L = 9\), 36 eigenvectors kept. Notebook 5.</div>
+<div class="check"><p class="q">What does a rotation of orbitals cost in the circuit?</p><button type="button">Show answer</button><p class="a" hidden>Givens rotations with angles from a lookup, each applied by a phase-gradient addition.</p></div>
+</article>
+
+<article data-unit="5" data-title="A smaller one-norm">
+<div class="math">\(\lambda_\text{DF} = \sum_p |\text{eig}_p(T')| + \tfrac14\sum_\ell\Big(\sum_m |f^\ell_m|\Big)^2\)</div>
+<p>[Lee et al., Eq. C11], with \(T'\) the one-body part left after squaring. Since walk calls are proportional to \(\lambda\), a smaller \(\lambda\) goes straight into the run time.</p>
+<div class="data"><b>Your data</b>Hydrogen chains: \(\lambda\) Pauli 8.75 vs DF 5.96 at 4 atoms; 306.0 vs 104.2 at 20 atoms, a factor 2.9. Notebook 5, <code>results/hydrogen_chains.json</code>.</div>
+<div class="check"><p class="q">The gap between the two \(\lambda\)s grows with chain length. What does that do to the advantage of factorizing?</p><button type="button">Show answer</button><p class="a" hidden>It grows: the walk-call saving scales with the \(\lambda\) ratio.</p></div>
+</article>
+
+<article data-unit="5" data-title="What truncation costs">
+<p>Dropping eigenvectors changes the Hamiltonian. The honest check is the energy: exact diagonalization with full and with rebuilt integrals, against chemical accuracy, 1.6 mHa.</p>
+<p>The error is not monotone in the threshold: the dropped pieces have both signs and partly cancel. Large molecules cannot be diagonalized; Lee et al. require the CCSD(T) energy to move by less than 0.6 mHa, keeping 1.0 mHa for phase estimation [Eq. 25].</p>
+<div class="data"><b>Your data</b>H\(_6\): threshold \(10^{-2}\) gives an error of \(6.0\times10^{-3}\) Ha (56 eigenvectors), \(10^{-3}\) gives \(1.2\times10^{-4}\), \(10^{-4}\) gives \(4.7\times10^{-7}\) (80 eigenvectors). Notebook 5.</div>
+<div class="check"><p class="q">Does threshold \(10^{-2}\) reach chemical accuracy for H\(_6\)?</p><button type="button">Show answer</button><p class="a" hidden>No: 6.0 mHa is above 1.6 mHa.</p></div>
+</article>
+
+<article data-unit="5" data-title="Code distance">
+<p>A logical qubit is a \(d\times d\) patch, about \(2(d+1)^2\) physical qubits [Gidney and Ekerå, <a href="https://arxiv.org/abs/1905.09749">arXiv:1905.09749</a>]. It fails per round with</p>
+<div class="math">\(p_L = 0.1\,(100\,p)^{(d+1)/2}\)</div>
+<p>[Fowler and Gidney, <a href="https://arxiv.org/abs/1808.06709">arXiv:1808.06709</a>]. At \(p = 10^{-3}\), every 2 added to \(d\) divides \(p_L\) by 10. Pick the smallest odd \(d\) with (patches) × (rounds) × \(p_L\) below the failure budget.</p>
+<p class="code">In the code: <code>qcost.surface_code.footprint(logical_qubits, toffolis)</code>.</p>
+<div class="data"><b>Your data</b>TFIM, 100 spins (258 patches with routing): expected failures 0.67 at \(d = 21\), 0.074 at \(d = 23\), 0.008 at \(d = 25\). Notebook 6.</div>
+<div class="check"><p class="q">A run 100 times longer: how much larger must \(d\) be at \(p = 10^{-3}\)?</p><button type="button">Show answer</button><p class="a" hidden>About 4: two steps of 2, each a factor 10. Distance grows with the logarithm of the run size.</p></div>
+</article>
+
+<article data-unit="5" data-title="Factories and hours">
+<p>Toffolis come from a CCZ factory of \(12d\times6d\) that makes one state every \(5.5d\) rounds [Gidney and Fowler, <a href="https://arxiv.org/abs/1812.01238">arXiv:1812.01238</a>]. With 1 μs rounds and \(d = 31\), 170 μs per Toffoli. Clifford gates are fast by comparison, so the run lasts (Toffolis) × (time per Toffoli).</p>
+<p>More factories run in parallel: faster, for more qubits.</p>
+<div class="data"><b>Your data</b>FeMoco, four factories, 10% failure budget: this model gives 12.0 million physical qubits, 119 hours, \(d = 31\); OpenFermion's <code>cost_estimator</code> 12.2 million, 94 hours, \(d = 31\). Notebook 6.</div>
+<div class="check"><p class="q">\(10^{10}\) Toffolis at 170 μs each with one factory: how long?</p><button type="button">Show answer</button><p class="a" hidden>\(1.7\times10^6\) s, about 20 days.</p></div>
+</article>
+
+<article data-unit="5" data-title="Review: molecules and machines" data-review>
+<p>Answer each from memory before you tap.</p>
+<div class="check"><p class="q">(Lesson 27) What are the two eigendecompositions of double factorization?</p><button type="button">Show answer</button><p class="a" hidden>Of the integrals as an \(n^2\times n^2\) matrix (rank \(L\)), then of each one-body factor \(W^\ell\).</p></div>
+<div class="check"><p class="q">(Lesson 30) Why does the code distance grow so slowly with the run length?</p><button type="button">Show answer</button><p class="a" hidden>\(p_L\) falls exponentially in \(d\), so \(d\) grows like the logarithm of patches × rounds.</p></div>
+<div class="check"><p class="q">(Lesson 26) Where does double factorization spend its extra qubits?</p><button type="button">Show answer</button><p class="a" hidden>On select/swap output registers for the rotation angles.</p></div>
+<div class="check"><p class="q">(Lesson 29) Lee et al. split 1.6 mHa how?</p><button type="button">Show answer</button><p class="a" hidden>1.0 mHa for phase estimation, 0.6 mHa for the factorization.</p></div>
+</article>
+
+<article data-unit="6" data-title="Hubbard: Table IV rebuilt">
+<p>Babbush et al. [<a href="https://arxiv.org/abs/1805.03662">arXiv:1805.03662</a>, Table IV] costed the 2D Hubbard model at \(u = 4t\), \(\Delta E = t/100\). Three numbers carry it: \(\lambda = 2Nt + Nu/2\) (Eq. 60, constant term included), \(\sqrt2\pi\lambda/\Delta E\) walk calls (Eq. 26), and \(10N\) T gates per call, all in SELECT.</p>
+<p>The \(10N\) is three unary iterations: \(4N + 4N + 2N\) T gates, i.e. our \(L - 1\) Toffolis per tree.</p>
+<p class="code">In the code: <code>qcost.hubbard.hubbard_estimate(N)</code>.</p>
+<div class="data"><b>Your data</b>6×6: \(9.2\times10^7\) T (paper \(9.3\times10^7\)); 8×8: \(2.9\times10^8\) (same); 20×20: \(1.14\times10^{10}\) (paper \(1.2\times10^{10}\)). Every ancilla and logical-qubit count exact. Notebook 7.</div>
+<div class="check"><p class="q">8×8 lattice: how many spin orbitals \(N\), and T gates per walk call?</p><button type="button">Show answer</button><p class="a" hidden>\(N = 128\), \(10N = 1280\) T.</p></div>
+</article>
+
+<article data-unit="6" data-title="What structure saves">
+<p>The Hubbard model has three distinct coefficients and is translation invariant. So SELECT needs no data, and PREPARE is two rotations and uniform superpositions: no QROM, no alias sampling.</p>
+<p>Run the generic pipeline of part 4 on the same Hamiltonian, as an arbitrary list of Pauli terms, and compare.</p>
+<div class="data"><b>Your data</b>8×8: generic walk, 704 terms, 2 224 Toffolis per step; specialized SELECT about 317. Ratio 7.0. Notebook 7.</div>
+<div class="check"><p class="q">Where does most of the generic step's extra cost go?</p><button type="button">Show answer</button><p class="a" hidden>Two alias-sampling PREPAREs (747 each), loading weights that take only three values, plus a SELECT over all terms instead of sites.</p></div>
+</article>
+
+<article data-unit="6" data-title="FeMoco from its integrals">
+<p>FeMoco, the iron–molybdenum cofactor of nitrogenase, is the standard chemistry benchmark. The active space of Reiher et al. [<a href="https://arxiv.org/abs/1605.03590">arXiv:1605.03590</a>]: 54 electrons in 54 orbitals, \(N = 108\) spin orbitals.</p>
+<p>Factorize the integrals (they ship with OpenFermion) at Lee et al.'s threshold, \(1.25\times10^{-3}\), with the code of lesson 27.</p>
+<p class="code">In the code: <code>reiher_femoco()</code>, <code>double_factorize</code>, <code>df_lambda</code>.</p>
+<div class="data"><b>Your data</b>\(L = 360\), 13 031 eigenvectors, \(\lambda = 294.8\) Ha (one-body 38.6 + two-body 256.3), all as in Lee et al., Table XIII. Notebook 8.</div>
+<div class="check"><p class="q">Walk calls at \(\epsilon = 1\) mHa, roughly?</p><button type="button">Show answer</button><p class="a" hidden>\(\pi\times294.8/0.002 \approx 4.6\times10^5\) (exactly 463 071).</p></div>
+</article>
+
+<article data-unit="6" data-title="FeMoco, line by line">
+<p>Lee et al. [<a href="https://arxiv.org/abs/2011.03494">arXiv:2011.03494</a>, App. C] list one walk step in ten steps. Coded term by term, with \(\aleph = 10\) keep bits and \(\beth = 16\) angle bits, two lines dominate.</p>
+<p><b>Angle lookups</b>: \(N/2\) Givens angles of \(\beth\) bits for each of 13 085 eigenvectors, a table of 864-bit words, looked up and undone by select/swap. <b>Rotations</b>: \(4N(\beth-2)\) by phase gradient.</p>
+<div class="data"><b>Your data</b>21 753 Toffolis per step: angle lookups 12 175 (56.0%), rotations 6 048 (27.8%). Total \(1.007\times10^{10}\) Toffolis on 3 725 logical qubits, exactly Lee et al.'s Table III and OpenFermion. Notebook 8.</div>
+<div class="check"><p class="q">To make FeMoco cheaper, which line would you attack first?</p><button type="button">Show answer</button><p class="a" hidden>The angle lookups: over half the step. (Tensor hypercontraction does, reaching \(5.3\times10^9\) Toffolis.)</p></div>
+</article>
+
+<article data-unit="6" data-title="Qubits, and the closed form">
+<p>Of the 3 725 logical qubits, the select/swap output registers for angles take \(k_r N\beth/2\) with \(k_r = 4\). The system itself is 108.</p>
+<p>Lee et al. also sum their step list into one formula, Eq. C39. The step list gives \(8\aleph - 42\) for the non-lookup parts; Eq. C39 has \(9\aleph - 43\). The published totals follow the step list. A reproduction finds such things; a reading does not.</p>
+<div class="data"><b>Your data</b>Angle registers 3 456 of 3 725 qubits. Eq. C39: 21 762 per step against the step list's 21 753, a difference \(\aleph - 1 = 9\). Notebook 8.</div>
+<div class="check"><p class="q">Plain QROMs (\(k = 1\)) instead of select/swap: more or fewer qubits, more or fewer Toffolis?</p><button type="button">Show answer</button><p class="a" hidden>Far fewer qubits (no 3 456-qubit angle block), far more Toffolis (about 13 000 per lookup instead of 5 850).</p></div>
+</article>
+
+<article data-unit="6" data-title="The threshold as a dial">
+<p>Raise the threshold and fewer eigenvectors survive: fewer angles to load, slightly smaller \(\lambda\), a less accurate Hamiltonian. The cost moves slowly, because \(\lambda\) barely changes and lookups grow like \(\sqrt{L\Xi}\).</p>
+<p>So the threshold is set by accuracy, not cost.</p>
+<div class="data"><b>Your data</b>FeMoco: threshold \(10^{-4}\) gives \(1.35\times10^{10}\) Toffolis (25 054 eigenvectors), \(1.25\times10^{-3}\) gives \(1.01\times10^{10}\), \(10^{-2}\) gives \(6.76\times10^9\) (4 700). A factor 2 over two orders of magnitude. Notebook 8.</div>
+<div class="check"><p class="q">\(\lambda\) is 296.7 at threshold \(10^{-4}\) and 283.4 at \(10^{-2}\). What carries most of the factor 2 in cost?</p><button type="button">Show answer</button><p class="a" hidden>The lookups (5 times fewer eigenvectors), not \(\lambda\) (only 5% smaller).</p></div>
+</article>
+
+<article data-unit="6" data-title="Review: the whole course" data-review>
+<p>Answer each from memory before you tap.</p>
+<div class="check"><p class="q">(Lessons 3, 36) Write the FeMoco Toffoli count as calls × step.</p><button type="button">Show answer</button><p class="a" hidden>463 071 × 21 753 = \(1.007\times10^{10}\).</p></div>
+<div class="check"><p class="q">(Lessons 15, 33) The Hubbard SELECT's \(10N\) T gates come from which construction?</p><button type="button">Show answer</button><p class="a" hidden>Three unary iterations, \(L - 1\) Toffolis (\(4L - 4\) T) each, over \(N\), \(N\), \(N/2\) items.</p></div>
+<div class="check"><p class="q">(Lessons 12, 36) Which two building blocks make up 84% of a FeMoco walk step?</p><button type="button">Show answer</button><p class="a" hidden>Select/swap lookups of rotation angles, and phase-gradient rotations.</p></div>
+<div class="check"><p class="q">(Lesson 31) FeMoco needs about \(10^{10}\) Toffolis. Days with one factory at 170 μs each?</p><button type="button">Show answer</button><p class="a" hidden>About 20 days.</p></div>
+</article>
+
+
+</div>
+</div>
+
+<script>
+window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]] }, svg: { fontCache: "global" }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
+<script>
+(function () {
+  // Tensor-network or circuit sketches, drawn as SVG. Delete entries you do not use.
+  const DIAGRAMS = {
+    tree: { w: 340, h: 150, alt: "unary iteration tree: root control, two children, four leaves; left children by AND, right children by CNOT",
+      nodes: [{ id: "r", x: 170, y: 22, t: "c" },
+        { id: "a", x: 90, y: 72, t: "0x", tone: "soft" }, { id: "b", x: 250, y: 72, t: "1x" },
+        { id: "a0", x: 50, y: 124, t: "00", tone: "soft" }, { id: "a1", x: 130, y: 124, t: "01" },
+        { id: "b0", x: 210, y: 124, t: "10", tone: "soft" }, { id: "b1", x: 290, y: 124, t: "11" }],
+      edges: [["r", "a", "AND"], ["r", "b", "CNOT"], ["a", "a0", "AND"], ["a", "a1", "CNOT"], ["b", "b0", "AND"], ["b", "b1", "CNOT"]] },
+    walk: { w: 340, h: 110, alt: "walk step: PREP, SELECT, PREP dagger and R on the index register; SELECT also acts on the system",
+      lines: [[60, 30, 330, 30], [60, 80, 330, 80], [170, 30, 170, 80]],
+      nodes: [{ id: "p", x: 100, y: 30, t: "PREP", s: "box", w: 52 },
+        { id: "s", x: 170, y: 30, t: "SEL", s: "box", w: 44, tone: "soft" }, { id: "pl", x: 170, y: 80, t: "Pₗ", s: "box", w: 36, tone: "soft" },
+        { id: "q", x: 245, y: 30, t: "PREP†", s: "box", w: 56 }, { id: "R", x: 308, y: 30, t: "R", s: "box", w: 30 }],
+      texts: [{ x: 54, y: 34, t: "|l⟩", a: "end", small: true }, { x: 54, y: 84, t: "|ψ⟩", a: "end", small: true }] },
+  };
+  // ---- Tensor-network diagrams -------------------------------------------------
+  // Each diagram is a small spec: nodes (tensors), edges (contracted indices),
+  // legs (open indices), plus optional raw lines, paths, dashed boxes and text.
+  const R = 15; // node half-size in px
+  const SHAPES = {
+    circle: (n) => `<circle cx="${n.x}" cy="${n.y}" r="${R}"/>`,
+    square: (n) => `<rect x="${n.x - R + 2}" y="${n.y - R + 2}" width="${2 * R - 4}" height="${2 * R - 4}" rx="3"/>`,
+    diamond: (n) => `<polygon points="${n.x},${n.y - R} ${n.x + R},${n.y} ${n.x},${n.y + R} ${n.x - R},${n.y}"/>`,
+    triR: (n) => `<polygon points="${n.x - R},${n.y - R} ${n.x + R},${n.y} ${n.x - R},${n.y + R}"/>`,
+    triL: (n) => `<polygon points="${n.x + R},${n.y - R} ${n.x - R},${n.y} ${n.x + R},${n.y + R}"/>`,
+    box: (n) => `<rect x="${n.x - n.w / 2}" y="${n.y - R}" width="${n.w}" height="${2 * R}" rx="6"/>`,
+    env: (n) => `<rect x="${n.x - 13}" y="${n.y - n.h / 2}" width="26" height="${n.h}" rx="6"/>`,
+  };
+  const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  function drawDiagram(d) {
+    const by = Object.fromEntries((d.nodes || []).map((n) => [n.id, n]));
+    let out = "";
+    for (const b of d.boxes || [])
+      out += `<rect class="tn-box" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="8"/>` +
+        (b.t ? `<text class="tn-boxlabel" x="${b.x + 4}" y="${b.y - 5}">${esc(b.t)}</text>` : "");
+    for (const p of d.paths || []) out += `<path class="tn-line" d="${p}"/>`;
+    for (const l of d.lines || []) out += `<line class="tn-line${l[4] ? " thick" : ""}" x1="${l[0]}" y1="${l[1]}" x2="${l[2]}" y2="${l[3]}"/>`;
+    for (const e of d.edges || []) {
+      const a = by[e[0]], b = by[e[1]];
+      out += `<line class="tn-line${e[3] ? " thick" : ""}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+      if (e[2]) out += `<text class="tn-idx" x="${(a.x + b.x) / 2 + (a.y === b.y ? 0 : 7)}" y="${(a.y + b.y) / 2 + (a.y === b.y ? -6 : 4)}" text-anchor="${a.y === b.y ? "middle" : "start"}">${esc(e[2])}</text>`;
+    }
+    for (const g of d.legs || []) {
+      const n = by[g[0]], x2 = n.x + g[1], y2 = n.y + g[2];
+      out += `<line class="tn-line${g[4] ? " thick" : ""}" x1="${n.x}" y1="${n.y}" x2="${x2}" y2="${y2}"/>`;
+      if (g[3]) {
+        const anchor = g[1] > 0 && g[2] === 0 ? "start" : g[1] < 0 && g[2] === 0 ? "end" : "middle";
+        const lx = x2 + (anchor === "start" ? 4 : anchor === "end" ? -4 : 0);
+        const ly = y2 + (g[2] > 0 ? 13 : g[2] < 0 ? -5 : 4);
+        out += `<text class="tn-idx" x="${lx}" y="${ly}" text-anchor="${anchor}">${esc(g[3])}</text>`;
+      }
+    }
+    for (const n of d.nodes || []) {
+      out += `<g class="tn-node ${n.tone || ""}">${SHAPES[n.s || "circle"](n)}</g>`;
+      if (n.t) {
+        const dx = n.s === "triR" ? -5 : n.s === "triL" ? 5 : 0;
+        out += `<text class="tn-label${n.tone === "accent" ? " on-accent" : ""}${String(n.t).length > 2 && n.s !== "box" ? " tight" : ""}" x="${n.x + dx}" y="${n.y + 4.5}" text-anchor="middle">${esc(n.t)}</text>`;
+      }
+    }
+    for (const t of d.texts || [])
+      out += `<text class="tn-text${t.small ? " small" : ""}" x="${t.x}" y="${t.y}" text-anchor="${t.a || "middle"}">${esc(t.t)}</text>`;
+    return `<svg viewBox="0 0 ${d.w} ${d.h}" width="${d.w}" role="img" aria-label="${esc(d.alt || "tensor network diagram")}">${out}</svg>`;
+  }
+  function renderDiagrams(root) {
+    root.querySelectorAll(".tn[data-d]").forEach((el) => {
+      const d = DIAGRAMS[el.dataset.d];
+      if (d) el.innerHTML = drawDiagram(d);
+    });
+  }
+
+  const units = {
+    1: ["The price tag", "What an estimate answers, why only Toffolis count, and the formula every estimate shares."],
+    2: ["Building blocks", "Amplitude amplification, the free uncomputation, adders, comparators, rotations from a phase gradient."],
+    3: ["Loading data", "Unary iteration, QROM, select/swap and the trade of qubits for Toffolis."],
+    4: ["The walk", "Alias sampling, the block encoding, the walk's spectrum, and what one step costs."],
+    5: ["Molecules and machines", "Double factorization, truncation error, code distance, factories and hours."],
+    6: ["Reproductions", "The Hubbard model of Babbush et al. and FeMoco of Lee et al., rebuilt."],
+  };
+  const $ = (id) => document.getElementById(id);
+  const lessons = Array.from(document.querySelectorAll("#lessons article"));
+  const total = lessons.length;
+  $("nLessons").textContent = String(total);
+  $("pos").textContent = `1 / ${total}`;
+  // Progress is stored by lesson title, so adding lessons later keeps the ticks in place.
+  const titles = lessons.map((el) => el.dataset.title);
+  const KEY = "resource-estimation-pocket-v1";  // unique per course; bump only if titles are renamed en masse
+  let state = { done: [], last: titles[0] };
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.done)) state = s;
+  } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+  const isDone = (i) => state.done.includes(titles[i]);
+
+  const home = $("home"), reader = $("reader"), stage = $("stage");
+  let current = 0;
+
+  function renderHome() {
+    const box = $("units");
+    box.innerHTML = "";
+    Object.keys(units).forEach((u) => {
+      const sec = document.createElement("div");
+      sec.className = "unit";
+      sec.innerHTML = `<h2>Part ${u} · ${units[u][0]}</h2><p class="blurb">${units[u][1]}</p>`;
+      lessons.forEach((el, i) => {
+        if (el.dataset.unit !== u) return;
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "row" + (isDone(i) ? " is-done" : "");
+        b.innerHTML = `<span class="n">${i + 1}</span><span class="t">${el.dataset.title}</span><span class="mark" aria-label="${isDone(i) ? "done" : "not done"}"></span>`;
+        b.addEventListener("click", () => open(i));
+        sec.appendChild(b);
+      });
+      box.appendChild(sec);
+    });
+    const n = titles.filter((t) => state.done.includes(t)).length;
+    $("bar").style.width = (100 * n / total) + "%";
+    $("count").textContent = `${n} of ${total} done`;
+    let next = 0;
+    while (next < total && isDone(next)) next++;
+    if (next >= total) next = Math.max(0, titles.indexOf(state.last));
+    const c = $("continue");
+    c.innerHTML = (n === 0 ? "Start with lesson 1" : n === total ? "Review: lesson " + (next + 1) : "Continue: lesson " + (next + 1)) + `<span>${lessons[next].dataset.title}</span>`;
+    c.onclick = () => open(next);
+  }
+
+  function typeset(el) {
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([el]).catch(() => {});
+    else setTimeout(() => typeset(el), 300);
+  }
+
+  function open(i) {
+    current = i;
+    state.last = titles[i]; save();
+    const src = lessons[i];
+    stage.innerHTML = `<div class="lesson${src.hasAttribute("data-review") ? " review" : ""}"><div class="unitname">Part ${src.dataset.unit} · ${units[src.dataset.unit][0]}</div><h2>${src.dataset.title}</h2>${src.innerHTML}</div>`;
+    stage.querySelectorAll(".check button").forEach((b) => {
+      b.addEventListener("click", () => {
+        const a = b.nextElementSibling;
+        a.hidden = !a.hidden;
+        b.textContent = a.hidden ? "Show answer" : "Hide answer";
+      });
+    });
+    $("pos").textContent = `${i + 1} / ${total}`;
+    $("prev").disabled = i === 0;
+    $("prev").style.visibility = i === 0 ? "hidden" : "visible";
+    $("next").textContent = i === total - 1 ? "Finish ✓" : "Got it, next →";
+    home.hidden = true; reader.hidden = false;
+    window.scrollTo(0, 0);
+    renderDiagrams(stage);
+    typeset(stage);
+  }
+
+  function goHome() { reader.hidden = true; home.hidden = false; renderHome(); window.scrollTo(0, 0); }
+
+  $("back").addEventListener("click", goHome);
+  $("prev").addEventListener("click", () => { if (current > 0) open(current - 1); });
+  $("next").addEventListener("click", () => {
+    if (!isDone(current)) { state.done.push(titles[current]); save(); }
+    if (current < total - 1) open(current + 1); else goHome();
+  });
+  $("reset").addEventListener("click", () => { $("resetConfirm").hidden = false; });
+  $("resetNo").addEventListener("click", () => { $("resetConfirm").hidden = true; });
+  $("resetYes").addEventListener("click", () => { state = { done: [], last: titles[0] }; save(); $("resetConfirm").hidden = true; renderHome(); });
+
+  renderHome();
+})();
+</script>
