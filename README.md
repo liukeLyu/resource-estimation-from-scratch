@@ -1,7 +1,5 @@
 # resource-estimation-from-scratch
 
-*Why I built this.* [DRAFT, to be replaced in my own words] I knew the names: block encodings, qubitization, QROM, magic-state factories. I had read the headline numbers, $10^{10}$ Toffolis for FeMoco, and I had called resource estimators that print them. But I could not say where any of the constants came from, or which line of an estimate I would change to make it cheaper. So I built every piece myself, as a circuit I can run on every input and count, on a model I know well, and then used the pieces to rebuild two published estimates line by line.
-
 Fault-tolerant resource estimation for ground-state energies by qubitized phase estimation, built from scratch in NumPy: every Toffoli of the walk operator is a circuit that is run on every input and counted, first on the transverse-field Ising chain $H = -\sum_i X_iX_{i+1} - h\sum_i Z_i$, then on hydrogen chains, the Hubbard model and FeMoco. Checked against exact simulation, PennyLane's resource estimator, OpenFermion's `resource_estimates`, and the published tables of Babbush et al. (2018) and Lee et al. (2021), which it reproduces.
 
 ```python
