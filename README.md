@@ -15,7 +15,7 @@ qcost.show(est)
 
 Bring your own Hamiltonian as a list of Pauli words, `qcost.PauliSum([(1.0, "XXI"), (0.5, "IZZ"), ...])`, or from OpenFermion with `qcost.exact.from_openfermion`. The one call is the wrong tool for a molecule: as a Pauli sum, H$_6$ in a minimal basis costs four times more Toffolis than in double-factorized form (`qcost.estimate_df`, notebook 05).
 
-New to fault-tolerant costs? Start with [`00_start_here`](examples/00_start_here.ipynb): the whole estimate for a model you know, then for a molecule, with every factor named. Phone companion: the [pocket course](docs/pocket-course.html).
+New to fault-tolerant costs? Start with [`00_start_here`](examples/00_start_here.ipynb): the whole estimate for a model you know, then for a molecule, with every factor named. Phone companion: the [pocket course](https://liukelyu.github.io/resource-estimation-from-scratch/docs/pocket-course.html).
 
 | Step | What you learn | Notebook |
 |---|---|---|
